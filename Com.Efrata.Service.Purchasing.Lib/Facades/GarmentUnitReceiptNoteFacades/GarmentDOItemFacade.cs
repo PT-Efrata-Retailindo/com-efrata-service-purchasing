@@ -24,6 +24,10 @@ using System.IO;
 using Com.Efrata.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNotePDFTemplates;
 using System.Data;
 using OfficeOpenXml;
+using Com.Efrata.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
+using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -44,7 +48,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
         private readonly DbSet<GarmentUnitDeliveryOrder> garmentUnitDeliveryOrders;
         private readonly DbSet<GarmentPurchaseRequest> garmentPurchaseRequests;
         private readonly PurchasingDbContext dbContext;
-
+        private readonly DbSet<GarmentPurchaseRequestItem> dbSetGarmentPRrItem;
 
         public GarmentDOItemFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -61,6 +65,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
             garmentUnitDeliveryOrders = dbContext.Set<GarmentUnitDeliveryOrder>();
             garmentPurchaseRequests = dbContext.Set<GarmentPurchaseRequest>();
             this.dbContext = dbContext;
+            dbSetGarmentPRrItem = dbContext.Set<GarmentPurchaseRequestItem>();
         }
 
         public List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}")
@@ -244,6 +249,105 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
 
             List<object> ListData = new List<object>(data.OrderBy(o => o.RONo).Take(size));
             return ListData;
+        }
+
+        //
+
+        public ReadResponse<dynamic> ReadForCC(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = null, string Search = "[]")
+        {
+            IQueryable<GarmentDOItems> Query = dbSetGarmentDOItems.Where(x => x.RemainingQuantity > 0);
+
+            List<string> SearchAttributes = JsonConvert.DeserializeObject<List<string>>(Search);
+            if (SearchAttributes.Count < 1)
+            {
+                SearchAttributes = new List<string>() { "POSerialNumber", "RO" };
+            }
+
+            IQueryable<GarmentPurchaseRequestItem> QueryPRItem = dbSetGarmentPRrItem;
+
+            //Query = QueryHelper<GarmentDOItems>.ConfigureSearch(Query, SearchAttributes, Keyword, WithAny: false);
+
+            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            //Query = QueryHelper<GarmentDOItems>.ConfigureFilter(Query, FilterDictionary);
+
+            //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            //Query = QueryHelper<GarmentDOItems>.ConfigureOrder(Query, OrderDictionary);
+
+            var QueryDOItem = (from a in Query
+                               join b in QueryPRItem on a.PRItemId equals b.Id
+                               where (string.IsNullOrWhiteSpace(Keyword) ? true : (a.POSerialNumber.Contains(Keyword) || a.RO.Contains(Keyword)))
+
+                               select new GarmentDOItemForCCViewModel
+                               {
+                                   GarmentPRId = a.Id,
+                                   GarmentPRItemId = a.PRItemId,
+                                   POSerialNumber = a.POSerialNumber,
+                                   DOItemNo = a.DOItemNo,
+                                   RONo = a.RO,
+                                   CategoryId = b.CategoryId,
+                                   CategoryCode = b.CategoryName == "FABRIC" ? "FAB" : b.ProductCode.Substring(0, 3),
+                                   CategoryName = b.CategoryName,
+                                   ProductId = a.ProductId,
+                                   ProductCode = a.ProductCode,
+                                   ProductName = a.ProductName,
+                                   ProductRemark = b.ProductRemark,
+                                   UOMId = a.SmallUomId,
+                                   UOMUnit = a.SmallUomUnit,
+                                   BudgetPrice = b.BudgetPrice,
+                                   RemainingQuantity = a.RemainingQuantity
+                               });
+
+            IQueryable SelectedQuery = QueryDOItem;
+            if (!string.IsNullOrWhiteSpace(Select))
+            {
+                SelectedQuery = QueryDOItem.Select(Select);
+            }
+
+            int totalData = SelectedQuery.Count();
+
+            if (Size > 0)
+            {
+                SelectedQuery = SelectedQuery
+                    .Skip((Page - 1) * Size)
+                    .Take(Size);
+            }
+
+            List<dynamic> Data = SelectedQuery
+                .ToDynamicList();
+
+            return new ReadResponse<dynamic>(Data, totalData, null);
+        }
+
+        public async Task<int> Patch(string id, JsonPatchDocument<GarmentDOItems> jsonPatch)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var IDs = JsonConvert.DeserializeObject<List<long>>(id);
+                    foreach (var ID in IDs)
+                    {
+                        var data = dbSetGarmentDOItems.Where(d => d.Id == ID)
+                            .Single();
+
+                        EntityExtension.FlagForUpdate(data, identityService.Username, USER_AGENT);
+
+                        jsonPatch.ApplyTo(data);
+                    }
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw e;
+                }
+            }
+
+            return Updated;
         }
 
         public List<DOItemsViewModels> GetByPO(string productcode, string po, string unitcode)
