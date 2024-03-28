@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Com.Efrata.Service.Purchasing.Lib.Interfaces;
+using Com.Efrata.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.Efrata.Service.Purchasing.Lib.Services;
 using Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels.DOItems;
 using Com.Efrata.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -25,9 +27,10 @@ namespace Com.Efrata.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceipt
         private readonly IGarmentDOItemFacade facade;
         private readonly IdentityService identityService;
 
-        public GarmentDOItemController(IServiceProvider serviceProvider, IGarmentDOItemFacade facade)
+        public GarmentDOItemController(IServiceProvider serviceProvider, IMapper mapper, IGarmentDOItemFacade facade)
         {
             this.serviceProvider = serviceProvider;
+            this.mapper = mapper;
             this.facade = facade;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
@@ -140,6 +143,27 @@ namespace Com.Efrata.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceipt
                       .Ok(viewModel);
                 return Ok(Result);
 
+        // GET DATA FOR COST CALCULATION
+        [HttpGet("for-cc")]
+        public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", string select = null, string search = "[]")
+        {
+            try
+            {
+                var Data = facade.ReadForCC(page, size, order, keyword, filter, select, search);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", Data.Data.Count },
+                        { "total", Data.TotalData },
+                        { "order", Data.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(Data.Data, info);
+                return Ok(Result);
             }
             catch (Exception e)
             {
@@ -174,6 +198,22 @@ namespace Com.Efrata.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceipt
                     new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
                     .Fail(e);
                 return BadRequest(Result);
+            }
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchOne([FromBody] JsonPatchDocument<GarmentDOItems> jsonPatch, int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.Patch($"[{id}]", jsonPatch);
+
+                return NoContent();
             }
             catch (Exception e)
             {
@@ -217,6 +257,21 @@ namespace Com.Efrata.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceipt
                         FileDownloadName = $"Racking - {po[0]}.pdf"
                     };
                 }
+        [HttpPatch]
+        public async Task<IActionResult> Patch([FromBody] JsonPatchDocument<GarmentDOItems> jsonPatch, string id = "[]")
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.Patch(id, jsonPatch);
+
+                return NoContent();
             }
             catch (Exception e)
             {
