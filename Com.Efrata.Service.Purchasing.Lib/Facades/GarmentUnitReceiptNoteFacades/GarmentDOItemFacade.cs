@@ -267,8 +267,8 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
 
             //Query = QueryHelper<GarmentDOItems>.ConfigureSearch(Query, SearchAttributes, Keyword, WithAny: false);
 
-            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            //Query = QueryHelper<GarmentDOItems>.ConfigureFilter(Query, FilterDictionary);
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentDOItems>.ConfigureFilter(Query, FilterDictionary);
 
             //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             //Query = QueryHelper<GarmentDOItems>.ConfigureOrder(Query, OrderDictionary);
@@ -295,7 +295,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                                    UOMUnit = a.SmallUomUnit,
                                    BudgetPrice = b.BudgetPrice,
                                    RemainingQuantity = a.RemainingQuantity
-                               });
+                               });  
 
             IQueryable SelectedQuery = QueryDOItem;
             if (!string.IsNullOrWhiteSpace(Select))
