@@ -214,14 +214,14 @@ namespace Com.Efrata.Service.Purchasing.Test.Controllers.GarmentReport
                 }
             };
             //controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReportAccountStock(null, null, null, null, null, 0, 0, null);
+            var response = controller.GetReportAccountStock(null, null, null, null,null, 0, 0, null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
         [Fact]
         public async Task Should_Error_Get_Report_Xls_DataAsync()
         {
             var mockFacade = new Mock<IAccountingStockReportFacade>();
-            mockFacade.Setup(x => x.GetStockReport(It.IsAny<int>(), null, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            mockFacade.Setup(x => x.GetStockReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .Returns(Tuple.Create(new List<AccountingStockReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
