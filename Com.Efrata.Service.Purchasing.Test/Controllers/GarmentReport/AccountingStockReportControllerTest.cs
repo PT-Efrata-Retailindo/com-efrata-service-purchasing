@@ -214,7 +214,7 @@ namespace Com.Efrata.Service.Purchasing.Test.Controllers.GarmentReport
                 }
             };
             //controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReportAccountStock(null, null, null, null,null, 0, 0, null);
+            var response = controller.GetReportAccountStock(null, null, null, "", null, 0, 0, null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
         [Fact]
