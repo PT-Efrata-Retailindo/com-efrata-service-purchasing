@@ -107,7 +107,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
                     var vatRatDouble = Convert.ToDouble(item.VatRate) / 100;
                     if (item.VatRate == "12")
                     {
-                        ppn = dpp * 0.12 * 11 / 12;
+                        ppn = dpp * 0.12;
                     }
                     else
                     {

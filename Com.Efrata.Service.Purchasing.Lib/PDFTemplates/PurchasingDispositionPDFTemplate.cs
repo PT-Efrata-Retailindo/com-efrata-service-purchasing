@@ -67,12 +67,13 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.SetWidths(new float[] { 5f, 0.5f, 2f, 7f, 4f });
 
             double dpp = 0;
+            double totprice = 0;
             foreach (var item in viewModel.Items)
             {
                 var rate = item.vatTax.rate;
                 foreach (var detail in item.Details)
                 {
-                    //dpp += detail.PaidPrice;
+                    totprice += detail.PaidPrice;
                     if (rate == "12")
                     {
                         dpp += detail.PaidPrice * 11 / 12;
@@ -102,7 +103,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
                     //ppn = (dpp * (Convert.ToDouble(item.vatTax.rate) / 100));
                     if (item.vatTax.rate == "12")
                     {
-                        ppn = (dpp * 0.12 * 11 / 12);
+                        ppn = (dpp * 0.12);
                     }
                     else
                     {
@@ -118,17 +119,17 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             }
 
             //Jumlah dibayar ke Supplier
-            double paidToSupp = dpp + ppn - pphRate;
+            double paidToSupp = totprice + ppn - pphRate;
             if (viewModel.IncomeTaxBy.ToUpper() == "EFRATA GARMINDO UTAMA")
             {
-                paidToSupp = dpp + ppn;
+                paidToSupp = totprice + ppn;
             }
 
-            double amount = dpp + ppn;
+            double amount = totprice + ppn;
 
             if (viewModel.IncomeTaxBy.ToUpper() == "SUPPLIER")
             {
-                amount = dpp + ppn - pphRate;
+                amount = totprice + ppn - pphRate;
             }
 
             var amountPDF = amount + viewModel.PaymentCorrection;
@@ -204,7 +205,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Colspan = 3;
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code + "  " + $"{(dpp + ppn).ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code + "  " + $"{(totprice + ppn).ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Colspan = 0;

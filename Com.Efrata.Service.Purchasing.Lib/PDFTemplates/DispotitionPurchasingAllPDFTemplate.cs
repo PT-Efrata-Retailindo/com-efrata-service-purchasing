@@ -74,9 +74,18 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             double dpp = 0;
             foreach (var item in viewModel.Items)
             {
+                var ppnRate = Convert.ToDouble(item.VatRate);
                 foreach (var detail in item.Details)
                 {
-                    dpp += detail.PaidPrice;
+                    //dpp += detail.PaidPrice;
+                    if (ppnRate == 12)
+                    {
+                        dpp += detail.PaidPrice * 11 / 12;
+                    }
+                    else
+                    {
+                        dpp += detail.PaidPrice;
+                    }
                 }
             }
 
@@ -93,7 +102,15 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
                 else
                 {
                     var vatRatDouble = Convert.ToDouble(item.VatRate);
-                    ppn = (dpp * vatRatDouble);
+                    //ppn = (dpp * vatRatDouble);
+                    if (item.VatRate == "12")
+                    {
+                        ppn = dpp * 0.12;
+                    }
+                    else
+                    {
+                        ppn = (dpp * vatRatDouble);
+                    }
                 }
                 if (item.IsUseIncomeTax)
                 {
@@ -125,7 +142,15 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             {
                 if (item.IsPayVat)
                 {
-                    vat += item.VatValue;
+                    //vat += item.VatValue;
+                    if (item.VatRate == "12")
+                    {
+                        vat = ppn;
+                    }
+                    else
+                    {
+                        vat += item.VatValue;
+                    }
                 }
 
                 if (item.IsPayIncomeTax)
@@ -198,12 +223,21 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Colspan = 0;
+            cellLeftNoBorder.Phrase = new Phrase("DPP", normal_font);
+            tableIdentity.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableIdentity.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Colspan = 3;
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{dpp.ToString("N", new CultureInfo("en-US"))}", normal_font);
+            tableIdentity.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("(PPn)", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Colspan = 3;
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{viewModel.VatValue.ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{ppn.ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Colspan = 0;
