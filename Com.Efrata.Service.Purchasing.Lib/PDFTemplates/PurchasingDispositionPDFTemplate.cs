@@ -181,6 +181,15 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Colspan = 0;
+            cellLeftNoBorder.Phrase = new Phrase("DPP", normal_font);
+            tableIdentity.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            tableIdentity.AddCell(cellLeftNoBorder);
+            cellLeftNoBorder.Colspan = 3;
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code + "  " + $"{dpp.ToString("N", new CultureInfo("en-US"))}", normal_font);
+            tableIdentity.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("(PPn)", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
