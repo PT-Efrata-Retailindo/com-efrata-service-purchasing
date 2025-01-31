@@ -162,9 +162,17 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade
                         foreach (var detail in item.Details)
                         {
                             //detail.PricePerDealUnit = detail.IncludePpn ? detail.PriceBeforeTax - (detail.PriceBeforeTax * (Convert.ToDouble(m.VatRate) / 100)) : detail.PriceBeforeTax;
-                            detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / (100 + Convert.ToDouble(m.VatRate)) : detail.PriceBeforeTax;
+                            //detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / (100 + Convert.ToDouble(m.VatRate)) : detail.PriceBeforeTax;
                             //PurchaseRequestItem purchaseRequestItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.Id == detail.PRItemId);
                             //purchaseRequestItem.Status = "Sudah diorder ke Supplier";
+                            if (m.VatRate == "12")
+                            {
+                                detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / (111) : detail.PriceBeforeTax;
+                            }
+                            else
+                            {
+                                detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / (100 + Convert.ToDouble(m.VatRate)) : detail.PriceBeforeTax;
+                            }
                             EntityExtension.FlagForCreate(detail, user, "Facade");
 
                             InternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.Id == detail.POItemId);

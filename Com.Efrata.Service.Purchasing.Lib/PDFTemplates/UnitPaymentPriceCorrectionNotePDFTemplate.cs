@@ -349,6 +349,28 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
                 cellIdentityTotalContentRight.Phrase = new Phrase(total.ToString("N", CultureInfo.InvariantCulture), normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentRight);
 
+                var dpp = 0.0;
+                if (viewModelSpb.vatTax.rate == "12")
+                {
+                    dpp = total * 11 / 12;
+                    totalPPn = dpp * 0.12;
+                    //total = total + totalPPn;
+                }
+                cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
+                tableTotal.AddCell(cellIdentityTotalContentLeft);
+                cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
+                tableTotal.AddCell(cellIdentityTotalContentLeft);
+                cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
+                tableTotal.AddCell(cellIdentityTotalContentLeft);
+                cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
+                tableTotal.AddCell(cellIdentityTotalContentLeft);
+                cellIdentityTotalContentLeft.Phrase = new Phrase("DPP", normal_font);
+                tableTotal.AddCell(cellIdentityTotalContentLeft);
+                cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodePPn}", normal_font);
+                tableTotal.AddCell(cellIdentityTotalContentLeft);
+                cellIdentityTotalContentRight.Phrase = new Phrase(dpp.ToString("N", CultureInfo.InvariantCulture), normal_font);
+                tableTotal.AddCell(cellIdentityTotalContentRight);
+
                 if (viewModel.useIncomeTax == false)
                 {
                     totalPPh = 0;
