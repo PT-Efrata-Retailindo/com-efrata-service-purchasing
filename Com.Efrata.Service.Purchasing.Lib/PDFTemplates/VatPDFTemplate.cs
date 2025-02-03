@@ -119,7 +119,8 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
 			double total = 0;
 			double totalPPN = 0;
 			double totalPPNIDR = 0;
-			foreach (GarmentInvoiceItemViewModel item in viewModel.items)
+            double totalDPP = 0;
+            foreach (GarmentInvoiceItemViewModel item in viewModel.items)
 			{
 				total += item.deliveryOrder.totalAmount;
 				
@@ -145,28 +146,52 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
                     cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
 					tableContent.AddCell(cellLeft);
 
-                    cellRight.Phrase = new Phrase(Math.Round(detail.pricePerDealUnit * detail.doQuantity, 2).ToString("N2"), normal_font);
+                    var dpp = 0.0;
+                    var ppn = 0.0;
+                    if (viewModel.vatRate == 12)
+                    {
+                        dpp = detail.pricePerDealUnit * detail.doQuantity * 11 / 12;
+                        ppn = detail.pricePerDealUnit * detail.doQuantity * 0.12 * 11 / 12;
+                    }
+                    else
+                    {
+                        dpp = detail.pricePerDealUnit * detail.doQuantity;
+                        ppn = detail.pricePerDealUnit * detail.doQuantity * viewModel.vatRate / 100;
+                    }
+
+                    cellRight.Phrase = new Phrase(Math.Round(dpp, 2).ToString("N2"), normal_font);
                     tableContent.AddCell(cellRight);
 
                     cellRight.Phrase = new Phrase((viewModel.vatRate).ToString(), normal_font);
-					tableContent.AddCell(cellRight);
+                    tableContent.AddCell(cellRight);
 
-					cellRight.Phrase = new Phrase( Math.Round(viewModel.vatRate * detail.pricePerDealUnit * detail.doQuantity / 100 , 2).ToString("N2"), normal_font);
-					tableContent.AddCell(cellRight);
+                    cellRight.Phrase = new Phrase(Math.Round(ppn, 2).ToString("N2"), normal_font);
+                    tableContent.AddCell(cellRight);
 
-					totalPPN += ((viewModel.vatRate/100) * detail.pricePerDealUnit * detail.doQuantity);
-					var garmentDeliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
+                    //               cellRight.Phrase = new Phrase(Math.Round(detail.pricePerDealUnit * detail.doQuantity, 2).ToString("N2"), normal_font);
+                    //               tableContent.AddCell(cellRight);
+
+                    //               cellRight.Phrase = new Phrase((viewModel.vatRate).ToString(), normal_font);
+                    //tableContent.AddCell(cellRight);
+
+                    //cellRight.Phrase = new Phrase( Math.Round(viewModel.vatRate * detail.pricePerDealUnit * detail.doQuantity / 100 , 2).ToString("N2"), normal_font);
+                    //tableContent.AddCell(cellRight);
+
+                    totalPPN += ppn;
+                    var garmentDeliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
 					double rate = 1;
 					if(garmentDeliveryOrder != null)
 					{ rate = (double)garmentDeliveryOrder.DOCurrencyRate; }
-					totalPPNIDR += ((viewModel.vatRate / 100) * detail.pricePerDealUnit * detail.doQuantity * rate);/**dikali rate DO*/
-				}
+                    //totalPPNIDR += ((viewModel.vatRate / 100) * detail.pricePerDealUnit * detail.doQuantity * rate);/**dikali rate DO*/
+                    totalPPNIDR += (ppn * rate);
+                    totalDPP += dpp;
+                }
 
 			}
             cellRight.Phrase = new Phrase("Total DPP", normal_font);
             cellRight.Colspan = 7;
             tableContent.AddCell(cellRight);
-            cellRight.Phrase = new Phrase(total.ToString("N2"), normal_font);
+            cellRight.Phrase = new Phrase(totalDPP.ToString("N2"), normal_font);
             cellRight.Colspan = 7;
             tableContent.AddCell(cellRight);
             cellRight.Phrase = new Phrase("Total Ppn", normal_font);

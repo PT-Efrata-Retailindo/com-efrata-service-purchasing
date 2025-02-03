@@ -211,8 +211,21 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             PdfPTable tableTax = new PdfPTable(3);
             tableTax.SetWidths(new float[] { 1f, 0.3f, 1f });
 
-            var ppn = jumlah * (model.VatRate/100);
-            var total = jumlah + (model.UseVat ? ppn : 0);
+            var ppn = 0.0;
+            var total = 0.0;
+            var dpp = 0.0;
+            if (model.VatRate == 12)
+            {
+                ppn = (model.VatRate / 100) * 11 / 12 * jumlah;
+                total = jumlah + ppn;
+                dpp = jumlah * 11 / 12;
+            }
+            else
+            {
+                ppn = jumlah * (model.VatRate / 100);
+                total = jumlah + (model.UseVat ? ppn : 0);
+                dpp = jumlah;
+            }
             var pph = jumlah * model.IncomeTaxRate / 100;
             var totalWithPph = total - pph;
 
@@ -264,6 +277,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             tableVat.AddCell(cellJustifyAllNoBorder);
 
             cellRightNoBorder.Phrase = new Phrase($"{jumlah.ToString("n", new CultureInfo("id-ID"))}", normal_font);
+            tableVat.AddCell(cellRightNoBorder);
+
+            cellJustifyAllNoBorder.Phrase = new Phrase($"DPP . . . . . . . . . . . . . . .   {model.CurrencyCode}", normal_font);
+            tableVat.AddCell(cellJustifyAllNoBorder);
+
+            cellRightNoBorder.Phrase = new Phrase($"{dpp.ToString("n2", new CultureInfo("id-ID").NumberFormat)}", normal_font);
             tableVat.AddCell(cellRightNoBorder);
 
             if (model.UseVat)

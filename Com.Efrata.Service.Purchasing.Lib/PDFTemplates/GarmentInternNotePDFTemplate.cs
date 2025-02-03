@@ -146,6 +146,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             double pph = 0;
             double maxtotal = 0;
             decimal totalcorrection = 0;
+            double dpp = 0;
             Dictionary<string, double> units = new Dictionary<string, double>();
             units.Add("EFR", 0);
             //units.Add("AG2", 0);
@@ -206,7 +207,17 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
 
                     if (item.garmentInvoice.useVat == true && item.garmentInvoice.isPayVat == true)
                     {
-                        ppn = (item.garmentInvoice.vatRate / 100) * (totalPriceTotal + (double)totalcorrection);
+                        //ppn = (item.garmentInvoice.vatRate / 100) * (totalPriceTotal + (double)totalcorrection);
+                        if (item.garmentInvoice.vatRate == 12)
+                        {
+                            dpp = (totalPriceTotal) * 11 / 12; // mengabaikan koreksi
+                            ppn = (item.garmentInvoice.vatRate / 100) * (totalPriceTotal) * 11 / 12; //mengabaikan koreksi
+                        }
+                        else
+                        {
+                            ppn = (item.garmentInvoice.vatRate / 100) * (totalPriceTotal + (double)totalcorrection);
+                            dpp = totalPriceTotal;
+                        }
                     }
                     else if (item.garmentInvoice.isPayVat == false)
                     {
@@ -297,7 +308,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             PdfPTable tableFooterRight = new PdfPTable(2);
             tableFooterRight.SetWidths(new float[] { 5f, 5f });
 
-            cellLeftNoBorder.Phrase = new Phrase($"Total Harga Pokok (DPP)", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"Total Harga Pokok", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase($": " + totalPriceTotal.ToString("N", new CultureInfo("id-ID")), normal_font);
@@ -328,6 +339,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
                 cellLeftNoBorder.Phrase = new Phrase($": " + 0, normal_font);
                 tableFooterRight.AddCell(cellLeftNoBorder);
             }
+
+            cellLeftNoBorder.Phrase = new Phrase($"DPP", normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
+
+            cellLeftNoBorder.Phrase = new Phrase($": " + dpp.ToString("N2", new CultureInfo("id-ID")), normal_font);
+            tableFooterRight.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("Total Nota PPn", normal_font);
             tableFooterRight.AddCell(cellLeftNoBorder);

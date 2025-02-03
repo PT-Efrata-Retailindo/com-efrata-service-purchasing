@@ -190,6 +190,24 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             cellRightMerge.Phrase = new Phrase($"{total.ToString("N", new CultureInfo("id-ID"))}", smaller_font);
             tableContent.AddCell(cellRightMerge);
 
+            cellRight.Phrase = new Phrase("DPP", bold_font);
+            tableContent.AddCell(cellRight);
+
+            cellLeftMerge.Phrase = new Phrase($"{viewModel.currency.code}", smaller_font);
+            tableContent.AddCell(cellLeftMerge);
+            var DPP = total;
+            if (viewModel.useVat)
+            {
+                if (viewModel.vatTax.rate == "12")
+                {
+                    DPP = Math.Round(total * 11 / 12);
+                }
+            }
+
+
+            cellRightMerge.Phrase = new Phrase($"{Math.Round(DPP, 2, MidpointRounding.AwayFromZero).ToString("N2", new CultureInfo("id-ID"))}", smaller_font);
+            tableContent.AddCell(cellRightMerge);
+
             cellRight.Colspan = 4;
             cellRight.Phrase = new Phrase("PPN " + $"{viewModel.vatTax.rate}"+ "%", bold_font);
             tableContent.AddCell(cellRight);
@@ -201,9 +219,18 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             double ppnNominal = 0;
             if (viewModel.useVat)
             {
-                ppnNominal = total * (Convert.ToDouble(viewModel.vatTax.rate) / 100);
-                ppn = $"{ppnNominal.ToString("N", new CultureInfo("id-ID"))}";
+                if (viewModel.vatTax.rate == "12")
+                {
+                    ppnNominal = Math.Round(total * (Convert.ToDouble(viewModel.vatTax.rate) / 100 * 11 / 12), 2, MidpointRounding.AwayFromZero);
+                }
+                else
+                {
+                    ppnNominal = Math.Round(total * (Convert.ToDouble(viewModel.vatTax.rate) / 100), 2, MidpointRounding.AwayFromZero);
+
+                }
+                ppn = $"{ppnNominal.ToString("N2", new CultureInfo("id-ID"))}";
             }
+
             cellRightMerge.Phrase = new Phrase(ppn, smaller_font);
             tableContent.AddCell(cellRightMerge);
 

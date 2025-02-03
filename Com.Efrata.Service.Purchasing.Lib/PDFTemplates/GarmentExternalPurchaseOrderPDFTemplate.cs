@@ -305,11 +305,33 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
                 cellRightMerge.Phrase = new Phrase($"{total.ToString("N2", new CultureInfo("id-ID"))}", table_font);
                 tableContent.AddCell(cellRightMerge);
 
-                double ppn = 0;
+                double ppn = 0.0;
+                double dpp = 0.0;
                 if (viewModel.IsUseVat)
                 {
-                    ppn = ((double)viewModel.Vat.Rate/100)* total;
+                    //ppn = ((double)viewModel.Vat.Rate/100)* total;
+                    if (viewModel.Vat.Rate == 12)
+                    {
+                        dpp = Math.Round((total * 11 / 12), 2, MidpointRounding.AwayFromZero);
+                        ppn = Math.Round(((double)viewModel.Vat.Rate / 100) * total * 11 / 12, 2, MidpointRounding.AwayFromZero);
+                    }
+                    else
+                    {
+                        dpp = Math.Round(total, 2, MidpointRounding.AwayFromZero);
+                        ppn = Math.Round(((double)viewModel.Vat.Rate / 100) * total, 2, MidpointRounding.AwayFromZero);
+                    }
                 }
+
+                cellRight.Colspan = 4;
+                cellRight.Phrase = new Phrase("DPP ", bold_font);
+                tableContent.AddCell(cellRight);
+                cellLeft.Phrase = new Phrase("", normal_font);
+                cellLeft.Colspan = 2;
+                tableContent.AddCell(cellLeft);
+                cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
+                tableContent.AddCell(cellLeftMerge);
+                cellRightMerge.Phrase = new Phrase($"{Math.Round(dpp, 2, MidpointRounding.AwayFromZero).ToString("N2", new CultureInfo("id-ID"))}", table_font);
+                tableContent.AddCell(cellRightMerge);
 
                 cellRight.Colspan = 4;
                 cellRight.Phrase = new Phrase("PPN "+viewModel.Vat.Rate+"%"+notePpnShow, bold_font);
