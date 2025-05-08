@@ -25,5 +25,11 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteVie
         public double jumlah { get; set; }
         public string tipepembayaran { get; set; }
         public string Jenis { get; set; }
+        public string pono { get; set; }
+        public string supplier { get; set; }
+        public string usevat { get; set; }
+        public string useincometax { get; set; }
+        public string invoice { get; set; }
+        public string nino { get; set; }
     }
 }
