@@ -1698,7 +1698,13 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
 							 from cc in PO.DefaultIfEmpty()
 							 join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
 							 from gg in uen.DefaultIfEmpty()
-							 where a.IsDeleted == false
+                             join i in dbContext.GarmentDeliveryOrders on a.DOId equals i.Id into DO
+                             from ii in DO.DefaultIfEmpty()
+                             join j in dbContext.GarmentInvoiceItems on a.DOId equals j.DeliveryOrderId into InvItems
+                             from jj in InvItems.DefaultIfEmpty()
+                             join k in dbContext.GarmentInvoices on jj.InvoiceId equals k.Id into Inv
+                             from kk in Inv.DefaultIfEmpty()
+                             where a.IsDeleted == false
 								&& b.IsDeleted == false
 								&& categories1.Contains(b.ProductName)
 								&& a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -1722,9 +1728,14 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
 								 jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
 								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
 								 Jenis = a.URNType,
-								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
-
-							 });
+								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
+                                 pono = f.EPONo,
+                                 supplier = a.SupplierName,
+                                 usevat = ii.UseVat == true ? "YA":"TIDAK",
+                                 useincometax = ii.UseIncomeTax == true ? "YA" : "TIDAK",
+                                 invoice = ii.IsInvoice == true ? kk.InvoiceNo : "",
+                                 nino = ii != null ? ii.InternNo : ""
+                             });
 
 				var index = 1;
 				foreach (var item in Query)
@@ -1750,9 +1761,15 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
 							   jumlahterima = (double)item.jumlahterima,
 							   satuanterima = item.satuanterima,
 							   jumlah = item.jumlah,
-							   tipepembayaran = item.tipepembayaran
+							   tipepembayaran = item.tipepembayaran,
+                               pono = item.pono,
+                               supplier = item.supplier,
+                               usevat = item.usevat,
+                               useincometax = item.useincometax,
+                               invoice = item.invoice,
+                               nino = item.nino
 
-						   });
+                           });
 
 				}
 			}
@@ -1765,43 +1782,57 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
 
 				var categories1 = category == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : category == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray();
 
-				var Query = (from a in dbContext.GarmentUnitReceiptNotes
-							 join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-							 join e in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals e.Id
-							 join f in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on e.GarmentEPOId equals f.Id
-							 join c in dbContext.GarmentInternalPurchaseOrders on e.POId equals c.Id into PO
-							 from cc in PO.DefaultIfEmpty()
-							 join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
-							 from gg in uen.DefaultIfEmpty()
-							 where a.IsDeleted == false
-								&& b.IsDeleted == false
-								&& categories1.Contains(b.ProductName)
-								&& a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-								&& a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
-								&& a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
-							 select new FlowDetailPenerimaanViewModels
-							 {
-								 kdbarang = b.ProductCode,
-								 nmbarang = b.ProductName,
-								 nopo = b.POSerialNumber,
-								 keterangan = b.ProductRemark,
-								 noro = b.RONo,
-								 artikel = e.Article,
-								 kdbuyer = cc != null ? cc.BuyerCode : "-",
-								 nobukti = a.URNNo,
-								 tanggal = a.CreatedUtc,
-								 jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
-								 satuanbeli = a.URNType == "PEMBELIAN" ? e.DealUomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
-								 jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
-								 satuanterima = b.SmallUomUnit,
-								 jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
-								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
-								 Jenis = a.URNType,
-								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
+                var Query = (from a in dbContext.GarmentUnitReceiptNotes
+                             join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                             join e in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals e.Id
+                             join f in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on e.GarmentEPOId equals f.Id
+                             join c in dbContext.GarmentInternalPurchaseOrders on e.POId equals c.Id into PO
+                             from cc in PO.DefaultIfEmpty()
+                             join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
+                             from gg in uen.DefaultIfEmpty()
+                             join i in dbContext.GarmentDeliveryOrders on a.DOId equals i.Id into DO
+                             from ii in DO.DefaultIfEmpty()
+                             join j in dbContext.GarmentInvoiceItems on a.DOId equals j.DeliveryOrderId into InvItems
+                             from jj in InvItems.DefaultIfEmpty()
+                             join k in dbContext.GarmentInvoices on jj.InvoiceId equals k.Id into Inv
+                             from kk in Inv.DefaultIfEmpty()
 
-							 });
+                             where a.IsDeleted == false
+                                && b.IsDeleted == false
+                                && categories1.Contains(b.ProductName)
+                                && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                                && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                                && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
+                                
+                             select new FlowDetailPenerimaanViewModels
+                             {
+                                 kdbarang = b.ProductCode,
+                                 nmbarang = b.ProductName,
+                                 nopo = b.POSerialNumber,
+                                 keterangan = b.ProductRemark,
+                                 noro = b.RONo,
+                                 artikel = e.Article,
+                                 kdbuyer = cc != null ? cc.BuyerCode : "-",
+                                 nobukti = a.URNNo,
+                                 tanggal = a.CreatedUtc,
+                                 jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
+                                 satuanbeli = a.URNType == "PEMBELIAN" ? e.DealUomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
+                                 jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
+                                 satuanterima = b.SmallUomUnit,
+                                 jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
+                                 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
+                                 Jenis = a.URNType,
+                                 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
+                                 pono = f.EPONo,
+                                 supplier = a.SupplierName,
+                                 usevat = ii.UseVat == true ? "YA" : "TIDAK",
+                                 useincometax = ii.UseIncomeTax == true ? "YA" : "TIDAK",
+                                 invoice = ii.IsInvoice == true ? kk.InvoiceNo : "",
+                                 nino = ii != null ? ii.InternNo : ""
 
-				var index = 1;
+                             });
+              
+                var index = 1;
 				foreach (var item in Query)
 				{
 
@@ -1825,7 +1856,13 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
 							   jumlahterima = (double)item.jumlahterima,
 							   satuanterima = item.satuanterima,
 							   jumlah = item.jumlah,
-							   tipepembayaran = item.tipepembayaran
+							   tipepembayaran = item.tipepembayaran,
+                               pono = item.pono,
+                               supplier = item.supplier,
+                               usevat = item.usevat,
+                               useincometax = item.useincometax,
+                               invoice = item.invoice,
+                               nino = item.nino,
 
 						   });
 
@@ -1969,6 +2006,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Metode Pembayaran", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nota Intern", DataType = typeof(String) });
 
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
@@ -1980,7 +2023,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
             if (Query.ToArray().Count() == 0)
             {
                 //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
-                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -1989,7 +2032,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                 {
                     index++;
                     string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran);
+                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran, data.pono, data.supplier, data.usevat, data.useincometax, data.invoice, data.nino);
                     ReceiptQtyTotal += data.jumlahterima;
                     PurchaseQtyTotal += data.jumlahbeli;
                     PriceReceiptTotal += (double)data.jumlah;
@@ -2039,7 +2082,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
             sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             sheet.Cells[$"P{6 + a}"].Value = PriceReceiptTotal;
             sheet.Cells[$"P{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"Q{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            //sheet.Cells[$"Q{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Q{6 + a}:W{6 + a}"].Merge = true;
+            sheet.Cells[$"Q{6 + a}:W{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"Q{6 + a}:W{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Q{6 + a}:W{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"Q{6 + a}:W{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
 
             MemoryStream stream = new MemoryStream();
