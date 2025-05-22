@@ -18,6 +18,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Interfaces
         Task<List<StellingEndViewModels>> GetStellingQuery(int id, int offset);
         MemoryStream GenerateExcel(string productcode, string po, string unitcode);
         MemoryStream GeneratePdf(List<StellingEndViewModels> stellingEndViewModels);
+        MemoryStream GenerateBarcode(List<StellingEndViewModels> stellingEndViewModels);
 
         ReadResponse<dynamic> ReadForCC(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = null, string Search = "[]");
         Task<int> Patch(string id, JsonPatchDocument<GarmentDOItems> jsonPatch);

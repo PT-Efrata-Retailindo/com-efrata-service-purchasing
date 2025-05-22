@@ -659,6 +659,10 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
         {
             return DOItemsStellingPDFTemplate.GeneratePdfTemplate(serviceProvider, stellingEndViewModels);
         }
+        public MemoryStream GenerateBarcode(List<StellingEndViewModels> stellingEndViewModels)
+        {
+            return DOItemsStellingPDFTemplate.GenerateBarcode(serviceProvider, stellingEndViewModels);
+        }
 
         public MemoryStream GenerateExcel(string productcode, string po, string unitcode)
         {
