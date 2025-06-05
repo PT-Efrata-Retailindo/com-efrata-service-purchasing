@@ -217,10 +217,55 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
 
         public GarmentDOItems ReadDOItemsByURNItemId(int id)
         {
-            var model = dbSetGarmentDOItems.IgnoreQueryFilters().Where(i => i.URNItemId == id && ((i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)))
-                            .FirstOrDefault();
+            var model = dbSetGarmentDOItems.IgnoreQueryFilters().Where(i => i.URNItemId == id && ((i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)));
+                            var query = model.GroupBy(s => new { s.URNItemId }).Select(r => new GarmentDOItems
+                            {
+                                Active = r.First().Active,
+                                CreatedAgent = r.First().CreatedAgent,
+                                CreatedBy = r.First().CreatedBy,
+                                CreatedUtc = r.First().CreatedUtc,
+                                DeletedBy = r.First().DeletedBy,
+                                DeletedUtc = r.First().DeletedUtc,
+                                DeletedAgent = r.First().DeletedAgent,
+                                LastModifiedAgent = r.First().LastModifiedAgent,
+                                LastModifiedBy = r.First().LastModifiedBy,
+                                LastModifiedUtc = r.First().LastModifiedUtc,
+                                Area = r.First().Area,
+                                Box = r.First().Box,
+                                Colour = r.First().Colour,
+                                DOCurrencyRate = r.First().DOCurrencyRate,
+                                DOItemNo = r.First().DOItemNo,
+                                DesignColor = r.First().DesignColor,
+                                DetailReferenceId = r.First().DetailReferenceId,
+                                EPOItemId = r.First().EPOItemId,
+                                Id = r.First().Id,
+                                IsDeleted = r.First().IsDeleted,
+                                Level = r.First().Level,
+                                POId = r.First().POId,
+                                POItemId = r.First().POItemId,
+                                POSerialNumber = r.First().POSerialNumber,
+                                PRItemId = r.First().PRItemId,
+                                ProductCode = r.First().ProductCode,
+                                ProductId = r.First().ProductId,
+                                ProductName = r.First().ProductName,
+                                RO = r.First().RO,
+                                Rack = r.First().Rack,
+                                RemainingQuantity = r.Sum(o => o.RemainingQuantity),
+                                SmallQuantity = r.First().SmallQuantity,
+                                SmallUomId = r.First().SmallUomId,
+                                SmallUomUnit = r.First().SmallUomUnit,
+                                SplitQuantity = r.First().SplitQuantity,
+                                StorageCode = r.First().StorageCode,
+                                StorageId = r.First().StorageId,
+                                StorageName = r.First().StorageName,
+                                UId = r.First().UId,
+                                URNItemId = r.Key.URNItemId,
+                                UnitCode = r.First().UnitCode,
+                                UnitId = r.First().UnitId,
+                                UnitName = r.First().UnitName
+                            }).FirstOrDefault();
 
-            return model;
+            return query;
         }
 
         public MemoryStream GeneratePdf(GarmentUnitReceiptNoteViewModel garmentUnitReceiptNote)
@@ -398,7 +443,8 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                                 EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
                                 PRItemId = garmentUnitReceiptNoteItem.PRItemId,
                                 RO = garmentUnitReceiptNoteItem.RONo,
-                                CustomsCategory= garmentUnitReceiptNoteItem.CustomsCategory
+                                CustomsCategory= garmentUnitReceiptNoteItem.CustomsCategory,
+                                SplitQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
                             };
                             EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
                             dbSetGarmentDOItems.Add(garmentDOItems);
@@ -440,6 +486,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                                 EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
                                 PRItemId = garmentUnitReceiptNoteItem.PRItemId,
                                 RO = garmentUnitReceiptNoteItem.RONo,
+                                Rack = garmentUnitReceiptNoteItem.Rack,
+                                Level = garmentUnitReceiptNoteItem.Level,
+                                Box = garmentUnitReceiptNoteItem.Box,
+                                Area = garmentUnitReceiptNoteItem.Area,
+                                Colour = garmentUnitReceiptNoteItem.Colour,
+                                SplitQuantity = GarmentUnitDO.UnitDOFromId != 0 ? 0 : garmentUnitReceiptNoteItem.SmallQuantity,
 
                             };
                             EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
@@ -2493,8 +2545,143 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
             return Updated;
         }
 
+        public List<object> ReadURNItemWithStock(string Keyword = null, string Filter = "{}")
+        {
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
 
+            bool hasDONoFilter = FilterDictionary.ContainsKey("DONo");
+            bool hasUnitCodeFilter = FilterDictionary.ContainsKey("UnitCode");
+            bool hasStorageCodeFilter = FilterDictionary.ContainsKey("StorageCode");
+            string DONo = hasDONoFilter ? (FilterDictionary["DONo"] ?? "").Trim() : "";
+            string UnitCode = hasUnitCodeFilter ? (FilterDictionary["UnitCode"] ?? "").Trim() : "";
+            string StorageCode = hasStorageCodeFilter ? (FilterDictionary["StorageCode"] ?? "").Trim() : "";
+            var dataDO = (from a in dbContext.GarmentDeliveryOrders
+                          join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
+                          join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
+                          where a.DONo == DONo
+                          select new { DOId = a.Id, c.Id }).Distinct().ToList();
+            var doDetailIds = dataDO.Select(a => a.Id).Distinct().ToList();
+            var query = (from y in dbContext.GarmentUnitReceiptNoteItems
+                         join x in dbContext.GarmentUnitReceiptNotes on y.URNId equals x.Id
+                         //join m in dbContext.GarmentExternalPurchaseOrderItems on y.EPOItemId equals m.Id
+                         join s in dbContext.GarmentDOItems on y.Id equals s.URNItemId
+                         where x.UnitCode == UnitCode && x.StorageCode == StorageCode && doDetailIds.Contains(y.DODetailId)
+                         select new
+                         {
+                             URNId = x.Id,
+                             URNItemId = y.Id,
+                             y.EPOItemId,
+                             Quantity = s.RemainingQuantity,
+                             Colour = s.Colour,
+                             Rack = s.Rack,
+                             Box = s.Box,
+                             Area = s.Area,
+                             Level = s.Level,
+                             DOItemsId = s.Id
+                         }).ToList();
 
+            var epoItemIds = query.Select(s => s.EPOItemId).ToList().Distinct().ToList();
+            var epoItems = dbContext.GarmentExternalPurchaseOrderItems.Where(u => epoItemIds.Contains(u.Id))
+                .Select(s => new { s.Id, s.Article }).ToList();
+
+            var urnIds = query.Select(s => s.URNId).ToList().Distinct().ToList();
+            var URNs = dbContext.GarmentUnitReceiptNotes.Where(u => urnIds.Contains(u.Id))
+                .Select(s => new { s.Id, s.DOId, s.DONo, s.URNNo, s.DOCurrencyRate }).ToList();
+
+            var urnItemIds = query.Select(s => s.URNItemId).ToList().Distinct().ToList();
+            var urnItems = dbContext.GarmentUnitReceiptNoteItems.Where(u => urnItemIds.Contains(u.Id))
+                .Select(y => new
+                {
+                    y.URNId,
+                    y.Id,
+                    y.RONo,
+                    y.DODetailId,
+                    y.EPOItemId,
+                    y.POItemId,
+                    y.PRItemId,
+                    y.ProductId,
+                    y.ProductName,
+                    y.ProductCode,
+                    y.ProductRemark,
+                    y.OrderQuantity,
+                    y.SmallQuantity,
+                    y.DesignColor,
+                    y.SmallUomId,
+                    y.SmallUomUnit,
+                    y.POSerialNumber,
+                    y.PricePerDealUnit,
+                    y.Conversion,
+                    y.UomUnit,
+                    y.UomId,
+                    y.ReceiptCorrection,
+                    y.CorrectionConversion,
+                    y.DOCurrencyRate
+                }).ToList();
+
+            //var doItems = dbContext.GarmentDOItems.Where(x => urnItemIds.Contains(x.URNItemId)).Select(s => new
+            //{
+            //    s.
+            //});
+
+            List<object> ListData = new List<object>();
+            foreach (var item in query)
+            {
+                var urn = URNs.FirstOrDefault(f => f.Id.Equals(item.URNId));
+                var urnItem = urnItems.FirstOrDefault(f => f.Id.Equals(item.URNItemId));
+                var epoItem = epoItems.FirstOrDefault(f => f.Id.Equals(item.EPOItemId));
+                string doNo = "";
+                long doId = 0;
+                // double doCurrencyRate = 0;
+                if (urn.DOId == 0)
+                {
+                    var URN = URNs.FirstOrDefault(a => a.DONo == DONo);
+                    doNo = URN.DONo;
+                    doId = URN.DOId;
+                    //doCurrencyRate = (double)URN.DOCurrencyRate;
+                }
+                ListData.Add(new
+                {
+                    DOId = doId == 0 ? urn.DOId : doId,
+                    DONo = doNo == "" ? urn.DONo : doNo,
+                    urn.URNNo,
+                    urnItem.URNId,
+                    urnItem.Id,
+                    urnItem.RONo,
+                    urnItem.DODetailId,
+                    urnItem.EPOItemId,
+                    urnItem.POItemId,
+                    urnItem.PRItemId,
+                    urnItem.ProductId,
+                    urnItem.ProductName,
+                    urnItem.ProductCode,
+                    urnItem.ProductRemark,
+                    urnItem.OrderQuantity,
+                    urnItem.SmallQuantity,
+                    urnItem.DesignColor,
+                    urnItem.SmallUomId,
+                    urnItem.SmallUomUnit,
+                    urnItem.POSerialNumber,
+                    urnItem.PricePerDealUnit,
+                    // DOCurrencyRate = doCurrencyRate == 0 ? urn.DOCurrencyRate : doCurrencyRate,
+                    urnItem.Conversion,
+                    urnItem.UomUnit,
+                    urnItem.UomId,
+                    urnItem.ReceiptCorrection,
+                    urnItem.CorrectionConversion,
+                    epoItem.Article,
+                    urnItem.DOCurrencyRate,
+                    item.Quantity,
+                    item.Colour,
+                    item.Rack,
+                    item.Box,
+                    item.Area,
+                    item.Level,
+                    item.DOItemsId
+                });
+            }
+
+            return ListData;
+        }
 
     }
 }

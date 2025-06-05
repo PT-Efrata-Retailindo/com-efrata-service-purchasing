@@ -73,7 +73,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNot
                             var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
                             if (unitDOItem != null)
                             {
-                                if ((double)item.Quantity > unitDOItem.Quantity)
+                                if ((double)item.Quantity > unitDOItem.DefaultDOQuantity)
                                 {
                                     itemErrorCount++;
                                     itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + unitDOItem.Quantity + "', ";
@@ -83,13 +83,30 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNot
 
 
                         PurchasingDbContext dbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-                        var UENItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().FirstOrDefault(x => x.Id == item.Id);
-                        if (UENItem != null)
+
+                        //var UENItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().FirstOrDefault(x => x.Id == item.Id);
+                        //if (UENItem != null)
+                        //{
+                        //    if ((double)item.Quantity > UENItem.Quantity)
+                        //    {
+                        //        itemErrorCount++;
+                        //        itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + UENItem.Quantity + "', ";
+                        //    }
+
+                        //}
+                        //if (item.Quantity <= 0)
+                        //{
+                        //    itemErrorCount++;
+                        //    itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
+                        //}
+
+                        var UnitDOItems = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().FirstOrDefault(x => x.Id == item.UnitDOItemId);
+                        if (UnitDOItems != null)
                         {
-                            if ((double)item.Quantity > UENItem.Quantity)
+                            if ((double)item.Quantity > UnitDOItems.DefaultDOQuantity)
                             {
                                 itemErrorCount++;
-                                itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + UENItem.Quantity + "', ";
+                                itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + UnitDOItems.DefaultDOQuantity + "', ";
                             }
 
                         }
@@ -98,6 +115,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNot
                             itemErrorCount++;
                             itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
                         }
+                       
                     }
                     
                     itemError += "}, ";

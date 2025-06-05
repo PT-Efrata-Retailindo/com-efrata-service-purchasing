@@ -65,6 +65,13 @@ namespace Com.Efrata.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel
         [ForeignKey("UnitDOId")]
         public virtual GarmentUnitDeliveryOrder GarmentUnitDeliveryOrder { get; set; }
         public string CustomsCategory { get; set; }
+
+        public string Colour { get; set; }
+        public string Rack { get; set; }
+        public string Level { get; set; }
+        public string Box { get; set; }
+        public string Area { get; set; }
+
     }
 }
 
