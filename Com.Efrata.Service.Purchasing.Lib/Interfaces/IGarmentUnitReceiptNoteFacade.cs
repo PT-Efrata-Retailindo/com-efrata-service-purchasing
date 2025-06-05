@@ -30,5 +30,6 @@ namespace Com.Efrata.Service.Purchasing.Lib.Interfaces
         GarmentDOItems ReadDOItemsByURNItemId(int id);
         int UrnDateRevise(List<long> ids, string user, DateTime reviseDate);
         List<object> ReadDataByDO(string Keyword = null, string Filter = "{}");
+        List<object> ReadURNItemWithStock(string Keyword = null, string Filter = "{}");
     }
 }

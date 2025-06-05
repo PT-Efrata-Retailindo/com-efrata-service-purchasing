@@ -107,7 +107,8 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                         var unitExSaved = garmentUnitExpenditureNote.Items.FirstOrDefault(d => d.UnitDOItemId == unitDOItem.Id);
                         if (unitExSaved == null || unitExSaved.IsSave == false)
                         {
-                            GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(u => u.URNItemId == unitDOItem.URNItemId);
+                            //GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(u => u.URNItemId == unitDOItem.URNItemId);
+                            GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(u => u.Id == unitDOItem.DOItemsId);
                             garmentDOItems.RemainingQuantity += (decimal)unitDOItem.Quantity;
 
                             var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == unitDOItem.URNItemId);
@@ -129,10 +130,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                             {
                                 EntityExtension.FlagForUpdate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
                                 garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - ((decimal)garmentUnitDeliveryOrderItem.Quantity - (decimal)garmentUnitExpenditureNoteItem.Quantity);
-                                garmentUnitDeliveryOrderItem.Quantity = garmentUnitExpenditureNoteItem.Quantity;
+                                //GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(u => u.URNItemId == garmentUnitDeliveryOrderItem.URNItemId);
 
-                                GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(u => u.URNItemId == garmentUnitDeliveryOrderItem.URNItemId);
+                                GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(u => u.Id == garmentUnitDeliveryOrderItem.DOItemsId);
+
                                 garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + ((decimal)garmentUnitDeliveryOrderItem.Quantity - (decimal)garmentUnitExpenditureNoteItem.Quantity);
+                                garmentUnitDeliveryOrderItem.Quantity = garmentUnitExpenditureNoteItem.Quantity;
                             }
                             garmentUnitExpenditureNoteItem.DOCurrencyRate = garmentUnitDeliveryOrderItem.DOCurrencyRate == null ? 0 : garmentUnitDeliveryOrderItem.DOCurrencyRate;
                             if (garmentUnitExpenditureNoteItem.DOCurrencyRate == 0)
@@ -1000,11 +1003,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                     foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
                     {
                         EntityExtension.FlagForDelete(garmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
-                        var garmentUnitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(d => d.Id == garmentUnitExpenditureNoteItem.UnitDOItemId);
-                        if (garmentUnitDOItem != null)
-                        {
-                            garmentUnitDOItem.Quantity = garmentUnitExpenditureNoteItem.Quantity;
-                        }
+                            
 
                     }
 
@@ -1045,11 +1044,31 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                         }
 
                         var uen = dbSet.Include(a=>a.Items).FirstOrDefault(a => a.UnitDOId == unitDO.Id);
-                        EntityExtension.FlagForDelete(uen, identityService.Username, USER_AGENT);
-
-                        foreach (var uenItem in uen.Items)
+                        if (uen != null)
                         {
-                            EntityExtension.FlagForDelete(uenItem, identityService.Username, USER_AGENT);
+                            EntityExtension.FlagForDelete(uen, identityService.Username, USER_AGENT);
+
+                            foreach (var uenItem in uen.Items)
+                            {
+                                EntityExtension.FlagForDelete(uenItem, identityService.Username, USER_AGENT);
+                            }
+                        }
+
+                    }
+                    if (garmentUnitExpenditureNote.ExpenditureType == "GARMENT")
+                    {
+                        var urn = dbSetGarmentUnitReceiptNote.Include(a => a.Items).FirstOrDefault(a => a.UENId == id);
+                        EntityExtension.FlagForDelete(urn, identityService.Username, USER_AGENT);
+                        foreach (var urnItem in urn.Items)
+                        {
+                            EntityExtension.FlagForDelete(urnItem, identityService.Username, USER_AGENT);
+
+                            var doitems = dbSetGarmentDOItems.Where(x => x.URNItemId == urnItem.Id);
+
+                            foreach (var doitem in doitems)
+                            {
+                                EntityExtension.FlagForDelete(doitem, identityService.Username, USER_AGENT);
+                            }
                         }
                     }
 
@@ -1249,8 +1268,8 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                     foreach(var uncheck in itemIsSaveFalse)
                     {
                         var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.FirstOrDefault(s => s.ProductId == uncheck.ProductId && s.StorageId == oldGarmentUnitExpenditureNote.StorageId && s.UomId == uncheck.UomId);
-
                         var garmentInventoryMovement = GenerateGarmentInventoryMovement(oldGarmentUnitExpenditureNote, uncheck, garmentInventorySummaryExisting, "IN");
+                       
                         dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
 
                         if (garmentInventorySummaryExisting != null)
@@ -1406,6 +1425,10 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                             {
                                 EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                                 garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - ((decimal)oldGarmentUnitExpenditureNoteItem.Quantity - (decimal)newGarmentUnitExpenditureNoteItem.Quantity);
+                                
+                                GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(u => u.Id == garmentUnitDeliveryOrderItem.DOItemsId);
+                                garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + ((decimal)oldGarmentUnitExpenditureNoteItem.Quantity - (decimal)newGarmentUnitExpenditureNoteItem.Quantity);
+                                
                                 garmentUnitDeliveryOrderItem.Quantity = newGarmentUnitExpenditureNoteItem.Quantity;
                             }
                             oldGarmentUnitExpenditureNoteItem.Quantity = garmentUnitExpenditureNote.Items.FirstOrDefault(i => i.Id == oldGarmentUnitExpenditureNoteItem.Id).Quantity;

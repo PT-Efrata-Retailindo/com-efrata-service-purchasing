@@ -55,5 +55,11 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteVie
         public string PaymentType { get; set; }
         public string PaymentMethod { get; set; }
         public string CustomsCategory { get; set; }
+
+        public string Colour { get; set; }
+        public string Rack { get; set; }
+        public string Level { get; set; }
+        public string Box { get; set; }
+        public string Area { get; set; }
     }
 }

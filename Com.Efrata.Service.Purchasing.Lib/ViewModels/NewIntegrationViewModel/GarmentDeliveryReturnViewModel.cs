@@ -19,6 +19,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
         public UnitViewModel Unit { get; set; }
         public StorageViewModel Storage { get; set; }
         public bool IsUsed { get; set; }
+        
         public virtual List<GarmentDeliveryReturnItemViewModel> Items { get; set; }
     }
 
@@ -36,7 +37,11 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
         public double QuantityUENItem { get; set; }
         public double RemainingQuantityPreparingItem { get; set; }
         public bool IsSave { get; set; }
-
         public UomViewModel Uom { get; set; }
+        public string Colour { get; set; }
+        public string Rack { get; set; }
+        public string Level { get; set; }
+        public string Box { get; set; }
+        public string Area { get; set; }
     }
 }

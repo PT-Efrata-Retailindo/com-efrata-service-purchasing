@@ -77,7 +77,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFaca
                     DesignColor = i.DesignColor,
                     ProductId = i.ProductId,
                     ProductCode = i.ProductCode,
-                    ProductName = i.ProductName
+                    ProductName = i.ProductName,
+                    Area = i.Area,
+                    Colour = i.Colour,
+                    Box = i.Box,
+                    Level = i.Level,
+                    Rack = i.Rack,
                 }).ToList()
             });
 
@@ -439,7 +444,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFaca
                         FabricType = i.FabricType,
                         DesignColor = i.DesignColor,
                         DOCurrencyRate = i.DOCurrencyRate,
-                        CustomsCategory=i.CustomsCategory
+                        CustomsCategory=i.CustomsCategory,
+                        Colour = i.Colour,
+                        Rack = i.Rack,
+                        Box = i.Box,
+                        Level = i.Level,
+                        Area = i.Area,
                     }).ToList()
                 });
 
@@ -497,6 +507,11 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFaca
                             Id = dbContext.GarmentPurchaseRequests.Where(m => m.RONo == i.RONo).Select(m => m.BuyerId).FirstOrDefault(),
                             Code = dbContext.GarmentPurchaseRequests.Where(m => m.RONo == i.RONo).Select(m => m.BuyerCode).FirstOrDefault()
                         },
+                        i.Colour,
+                        i.Box,
+                        i.Level,
+                        i.Rack,
+                        i.Area,
                     }).ToList()
                 }).ToList()
             );
