@@ -1846,6 +1846,14 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
 
                              where a.IsDeleted == false
                                 && b.IsDeleted == false
+                                && e.IsDeleted == false
+                                && f.IsDeleted == false
+                                && cc.IsDeleted == false
+                                && gg.IsDeleted == false
+
+                                && ii.IsDeleted == false
+                                && jj.IsDeleted == false
+                                && kk.IsDeleted == false
                                 && categories1.Contains(b.ProductName)
                                 && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                                 && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
