@@ -31,6 +31,9 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteVie
         public string DoNo { get; set; }
         public string RoNo { get; set; }
 
+        public string ReceiptNo { get; set; }
+        public string ExpenditureNo { get; set; }
+
         public long ProductId { get; set; }
 
     }
@@ -60,6 +63,9 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteVie
         public string Supplier { get; set; }
         public string DoNo { get; set; }
         public string RoNo { get; set; }
+
+        public string ReceiptNo { get; set; }
+        public string ExpenditureNo { get; set; }
 
     }
 }

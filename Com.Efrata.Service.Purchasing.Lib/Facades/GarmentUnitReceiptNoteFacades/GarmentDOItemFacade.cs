@@ -421,8 +421,10 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                                     RoNo = a.RO,
                                     Supplier = c.SupplierName,
                                     DoNo = c.DONo,
-                                    ProductId = a.ProductId
-                                }).GroupBy(x => new { x.POSerialNumber, x.Uom, x.Colour, x.Rack, x.Level, x.Box, x.Area, x.ReceiptDate, x.ExpenditureDate, x.QtyExpenditure, x.Remaining, x.Remark, x.User, x.RoNo, x.Supplier, x.DoNo, x.ProductId, id }, (key, group) => new StellingViewModels
+                                    ProductId = a.ProductId,
+                                    ReceiptNo = c.URNNo,
+                                    ExpenditureNo = null,
+                                }).GroupBy(x => new { x.POSerialNumber, x.Uom, x.Colour, x.Rack, x.Level, x.Box, x.Area, x.ReceiptDate, x.ExpenditureDate, x.QtyExpenditure, x.Remaining, x.Remark, x.User, x.RoNo, x.Supplier, x.DoNo, x.ProductId,x.ReceiptNo,x.ExpenditureNo, id }, (key, group) => new StellingViewModels
                                 {
                                     id = key.id,
                                     POSerialNumber = key.POSerialNumber,
@@ -443,7 +445,9 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                                     RoNo = key.RoNo,
                                     Supplier = key.Supplier,
                                     DoNo = key.DoNo,
-                                    ProductId = key.ProductId
+                                    ProductId = key.ProductId,
+                                    ReceiptNo = key.ReceiptNo,
+                                    ExpenditureNo = key.ExpenditureNo
                                 }).ToList();
 
             var QueryExpend = (from a in dbSetGarmentDOItems
@@ -477,7 +481,10 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                                    Remaining = null,
                                    Remark = e.RONo,
                                    User = b.CreatedBy,
-                                   Article = e.Article
+                                   RoNo = e.RONo,
+                                   Article = e.Article,
+                                   ReceiptNo = null,
+                                   ExpenditureNo = c.UENNo
                                }).ToList();
 
             var data = QueryReceipt.Union(QueryExpend).ToList();
@@ -513,7 +520,9 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                         DoNo = a.DoNo,
                         Buyer = Pr != null ? Pr.BuyerName : null,
                         Article = Pr != null ? Pr.Article : null,
-                        Construction = procuct.Composition
+                        Construction = procuct.Composition,
+                        ReceiptNo = a.ReceiptNo,
+                        ExpenditureNo = a.ExpenditureNo
                     };
 
                     TempQty = (double)a.Quantity;
@@ -536,8 +545,11 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                         QtyExpenditure = a.QtyExpenditure,
                         Remaining = Math.Round((double)TempQty - (double)a.QtyExpenditure, 2),
                         Remark = a.Remark,
+                        RoNo = a.RoNo,
                         User = a.User,
-                        Article = a.Article
+                        Article = a.Article,
+                        ReceiptNo = a.ReceiptNo,
+                        ExpenditureNo = a.ExpenditureNo,
                     };
 
                     TempQty -= (double)a.QtyExpenditure;
