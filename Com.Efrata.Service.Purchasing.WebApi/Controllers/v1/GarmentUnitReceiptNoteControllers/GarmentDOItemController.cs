@@ -75,11 +75,11 @@ namespace Com.Efrata.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceipt
         }
 
         [HttpGet("by-po")]
-        public IActionResult GetDOItemsByPO(string productcode, string po, string unitcode)
+        public IActionResult GetDOItemsByPO(string productcode, string po, string rack)
         {
             try
             {
-                var result = facade.GetByPO(productcode, po, unitcode);
+                var result = facade.GetByPO(productcode, po, rack);
                 Dictionary<string, object> Result =
                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
                        .Ok(result);

@@ -245,13 +245,14 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
             List<object> ListData = new List<object>(data.OrderBy(o => o.RONo).Take(size));
             return ListData;
         }
-        public List<DOItemsViewModels> GetByPO(string productcode, string po, string unitcode)
+        public List<DOItemsViewModels> GetByPO(string productcode, string po, string rack)
         {
             IQueryable<GarmentDOItems> Query = dbSetGarmentDOItems
                 .Where(w => w.IsDeleted == false
                 //&& w.RemainingQuantity > 0 
                 && w.POSerialNumber == (string.IsNullOrWhiteSpace(po) ? w.POSerialNumber : po)
-                && w.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? w.UnitCode : unitcode)
+                //&& w.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? w.UnitCode : unitcode)
+                && w.Rack == (string.IsNullOrWhiteSpace(rack) ? w.Rack : rack)
                 && w.ProductCode == (string.IsNullOrWhiteSpace(productcode) ? w.ProductCode : productcode)
                 && w.ProductName == "FABRIC"
                 );
@@ -273,7 +274,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                 Area = x.Area,
                 CreatedBy = x.CreatedBy,
                 ModyfiedBy = x.Colour == "-" ? "-" : x.LastModifiedBy
-            }).ToList();
+            }).OrderByDescending(x => x.POSerialNumber).ThenByDescending(x => x.RemainingQuantity).ToList();
             //List<object> ListData = new List<object>(data.OrderBy(o => o.POSerialNumber));
 
             return data;
