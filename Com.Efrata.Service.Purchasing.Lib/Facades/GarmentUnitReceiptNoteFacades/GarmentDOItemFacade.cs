@@ -462,7 +462,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                                 && c.IsDeleted == false
                                 && d.IsDeleted == false
                                && e.IsDeleted == false
-                               && b.Colour != (null)
+                               //&& b.Colour != (null)
                                //&& b.CreatedUtc >= QueryReceipt.Select(x=> x.UpdateDate).FirstOrDefault()
                                select new StellingViewModels
                                {

@@ -206,6 +206,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFaca
 
                             if(garmentDOItems!=null)
                                 garmentDOItems.RemainingQuantity += (decimal)item.SmallQuantity;
+                                garmentDOItems.SplitQuantity = garmentDOItems.RemainingQuantity;
 
                         }
                         else
@@ -219,6 +220,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFaca
 
                             if (garmentDOItems != null)
                                 garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + ((garmentUnitReceiptNoteItem.CorrectionConversion * garmentUnitReceiptNoteItem.ReceiptCorrection) - garmentDOItems.RemainingQuantity);
+                                garmentDOItems.SplitQuantity = garmentDOItems.RemainingQuantity;
                         }
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
