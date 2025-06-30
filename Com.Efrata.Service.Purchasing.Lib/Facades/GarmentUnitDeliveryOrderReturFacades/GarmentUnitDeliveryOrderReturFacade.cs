@@ -260,7 +260,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRetu
                             EntityExtension.FlagForUpdate(oldGarmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
                             GarmentDeliveryOrderDetail doDetail = dbContext.GarmentDeliveryOrderDetails.Single(s => s.Id.Equals(garmentUnitDeliveryOrderItem.DODetailId));
 
-                            doDetail.ReturQuantity = doDetail.ReturQuantity - oldGarmentUnitDeliveryOrderItem.ReturQuantity+ garmentUnitDeliveryOrderItem.ReturQuantity;
+                            doDetail.ReturQuantity = doDetail.ReturQuantity - oldGarmentUnitDeliveryOrderItem.ReturQuantity + garmentUnitDeliveryOrderItem.ReturQuantity;
 
                             GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == oldGarmentUnitDeliveryOrderItem.URNItemId);
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);

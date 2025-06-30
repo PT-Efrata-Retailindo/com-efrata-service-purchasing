@@ -510,7 +510,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                                 OrderQuantity = (decimal)item.Quantity,
                                 CorrectionConversion = item.Conversion,
                                 UENItemId = item.Id,
-                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0
+                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0,
+                                Colour = item.Colour,
+                                Rack = item.Rack,
+                                Box = item.Box,
+                                Level = item.Level,
+                                Area = item.Area,
                             };
                             urnItems.Add(urnItem);
                             EntityExtension.FlagForCreate(urnItem, identityService.Username, USER_AGENT);
@@ -568,6 +573,13 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                                 PRItemId = garmentUnitReceiptNoteItem.PRItemId,
                                 RO = garmentUnitReceiptNoteItem.RONo,
 
+                                Colour = garmentUnitReceiptNoteItem.Colour,
+                                Rack = garmentUnitReceiptNoteItem.Rack,
+                                Box = garmentUnitReceiptNoteItem.Box,
+                                Level = garmentUnitReceiptNoteItem.Level,
+                                Area = garmentUnitReceiptNoteItem.Area,
+                                SplitQuantity = garmentUnitReceiptNoteItem.SmallQuantity
+
                             };
                             garmentDOItems.DOItemNo = await garmentUnitReceiptNoteFacade.GenerateNoDOItems(garmentUnitReceiptNote);
 
@@ -605,6 +617,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                                 DOCurrencyRate = gUenItem.DOCurrencyRate,
                                 ReturQuantity = 0,
                                 FabricType = gUenItem.FabricType,
+
+                                Colour = urnItem.Colour,
+                                Rack = urnItem.Rack,
+                                Box = urnItem.Box,
+                                Level = urnItem.Level,
+                                Area = urnItem.Area,
 
                             };
                             unitDOItems.Add(garmentUnitDOItems);
@@ -674,7 +692,13 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                                 BuyerCode = garmentPurchaseRequest == null ? null : garmentPurchaseRequest.BuyerCode,
                                 DOCurrencyRate = unitDOItem.DOCurrencyRate,
                                 BasicPrice = gUenItem1.BasicPrice,
-                                Conversion = gUenItem1.Conversion
+                                Conversion = gUenItem1.Conversion,
+
+                                Colour = unitDOItem.Colour,
+                                Rack = unitDOItem.Rack,
+                                Box = unitDOItem.Box,
+                                Level = unitDOItem.Level,
+                                Area = unitDOItem.Area,
 
                             };
                             garmentUENItems.Add(uenItem);
@@ -836,7 +860,13 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                                 OrderQuantity = (decimal)item.Quantity,
                                 CorrectionConversion = item.Conversion,
                                 UENItemId = item.Id,
-                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0
+                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0,
+
+                                Colour = item.Colour,
+                                Rack = item.Rack,
+                                Box = item.Box,
+                                Level = item.Level,
+                                Area = item.Area,
                             };
                             urnItems.Add(urnItem);
                             EntityExtension.FlagForCreate(urnItem, identityService.Username, USER_AGENT);
@@ -893,6 +923,13 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                                 EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
                                 PRItemId = garmentUnitReceiptNoteItem.PRItemId,
                                 RO = garmentUnitReceiptNoteItem.RONo,
+
+                                Colour = garmentUnitReceiptNoteItem.Colour,
+                                Rack = garmentUnitReceiptNoteItem.Rack,
+                                Box = garmentUnitReceiptNoteItem.Box,
+                                Level = garmentUnitReceiptNoteItem.Level,
+                                Area = garmentUnitReceiptNoteItem.Area,
+                                SplitQuantity = garmentUnitReceiptNoteItem.SmallQuantity
 
                             };
                             garmentDOItems.DOItemNo = await garmentUnitReceiptNoteFacade.GenerateNoDOItems(garmentUnitReceiptNote);
@@ -1003,7 +1040,11 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                     foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
                     {
                         EntityExtension.FlagForDelete(garmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
-                            
+                        var garmentUnitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(d => d.Id == garmentUnitExpenditureNoteItem.UnitDOItemId);
+                        if (garmentUnitDOItem != null)
+                        {
+                            garmentUnitDOItem.Quantity = garmentUnitExpenditureNoteItem.Quantity;
+                        }
 
                     }
 
@@ -1033,6 +1074,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFa
                         foreach(var urnItem in urn.Items)
                         {
                             EntityExtension.FlagForDelete(urnItem, identityService.Username, USER_AGENT);
+                            var doitems = dbSetGarmentDOItems.Where(x => x.URNItemId == urnItem.Id);
+
+                            foreach (var doitem in doitems)
+                            {
+                                EntityExtension.FlagForDelete(doitem, identityService.Username, USER_AGENT);
+                            }
                         }
                         var unitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(a => a.URNId == urn.Id);
                         var unitDO = dbSetGarmentUnitDeliveryOrder.Include(a=>a.Items).FirstOrDefault(a => a.Id == unitDOItem.UnitDOId);
