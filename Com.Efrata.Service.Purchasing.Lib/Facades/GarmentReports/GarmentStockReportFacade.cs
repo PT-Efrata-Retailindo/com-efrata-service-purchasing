@@ -1435,7 +1435,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentReports
             //}).ToList();
 
             var UnionData = BalanceStock.Concat(Terima).Concat(Keluar).Concat(Koreksi).AsEnumerable();
-            var stock = UnionData.GroupBy(x => new { /*x.Buyer,*/ x.EndingUom, x.ExpandUom, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO, x.SupplierCode }, (key, group) => new GarmentStockByProductReportViewModelTemp
+            var stock = UnionData.GroupBy(x => new { /*x.Buyer,*/ x.EndingUom, x.ExpandUom,x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO, x.SupplierCode }, (key, group) => new GarmentStockByProductReportViewModelTemp
             {
                 //BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2, MidpointRounding.AwayFromZero),
                 //BeginningBalanceUom = key.BeginningBalanceUom,
@@ -1444,7 +1444,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentReports
                 EndingUom = key.EndingUom,
                 ExpandUom = key.ExpandUom,
                 ExpendQty = Math.Round(group.Sum(x => x.ExpendQty), 2, MidpointRounding.AwayFromZero),
-                NoArticle = group.FirstOrDefault().NoArticle,
+                NoArticle = key.NoArticle,
                 PaymentMethod = key.PaymentMethod,
                 PlanPo = key.PlanPo,
                 ProductCode = key.ProductCode,
