@@ -254,7 +254,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                 //&& w.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? w.UnitCode : unitcode)
                 && w.Rack == (string.IsNullOrWhiteSpace(rack) ? w.Rack : rack)
                 && w.ProductCode == (string.IsNullOrWhiteSpace(productcode) ? w.ProductCode : productcode)
-                && w.ProductName == "FABRIC"
+                && (w.ProductName == "FABRIC" || w.ProductName== "INTERLINNING")
                 );
 
             var data = Query.Select(x => new DOItemsViewModels
@@ -466,7 +466,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                                //&& b.CreatedUtc >= QueryReceipt.Select(x=> x.UpdateDate).FirstOrDefault()
                                select new StellingViewModels
                                {
-
+                                   id = a.Id,
                                    POSerialNumber = null,
                                    Quantity = null,
                                    Uom = b.UomUnit,
@@ -533,6 +533,7 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                 {
                     StellingEndViewModels stelling = new StellingEndViewModels
                     {
+                        id = a.id,
                         POSerialNumber = a.POSerialNumber,
                         Quantity = a.Quantity,
                         Uom = a.Uom,
