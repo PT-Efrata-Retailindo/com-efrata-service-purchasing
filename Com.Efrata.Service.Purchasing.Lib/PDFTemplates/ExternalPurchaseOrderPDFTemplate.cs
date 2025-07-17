@@ -84,8 +84,8 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("  " + "Attn. \n  Telp.", small_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentRight.Phrase = new Phrase("Mohon di-fax kembali setelah ditandatangani dan distempel perusahaan. Terima Kasih.", small_font);
-            tableIdentity.AddCell(cellIdentityContentRight);
+            //cellIdentityContentRight.Phrase = new Phrase("Mohon di-fax kembali setelah ditandatangani dan distempel perusahaan. Terima Kasih.", small_font);
+            //tableIdentity.AddCell(cellIdentityContentRight);
             //cellIdentityContentLeft.Phrase = new Phrase(" ", normal_font);
             //tableIdentity.AddCell(cellIdentityContentLeft);
             //cellIdentityContentLeft.Phrase = new Phrase(" " + "Telp.", normal_font);
