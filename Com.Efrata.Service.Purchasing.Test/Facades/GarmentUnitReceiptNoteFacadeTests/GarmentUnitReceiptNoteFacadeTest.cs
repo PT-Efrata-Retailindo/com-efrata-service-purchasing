@@ -1,21 +1,43 @@
 ﻿using AutoMapper;
 using Com.Efrata.Service.Purchasing.Lib;
+using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
+using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
+using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
 using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFacades;
+using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentReports;
+using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
+using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
 using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
+using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpenditureFacades;
+using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringCentralBillReceptionFacades;
+using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteExpenditureFacades;
+using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteReceptionFacades;
+using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
 using Com.Efrata.Service.Purchasing.Lib.Interfaces;
+using Com.Efrata.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.Efrata.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.Efrata.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.Efrata.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
-using Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
 using Com.Efrata.Service.Purchasing.Lib.Services;
+using Com.Efrata.Service.Purchasing.Lib.Services.GarmentDebtBalance;
+using Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
 using Com.Efrata.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtils;
+using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDataUtils;
 using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
+using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentReceiptCorrectionDataUtils;
+using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrderDataUtils;
+using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureDataUtils;
 using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
+using Com.Efrata.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
@@ -29,29 +51,8 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Xunit;
-using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
-using Com.Efrata.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using System.Threading.Tasks;
-using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
-using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtils;
-using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringCentralBillReceptionFacades;
-using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpenditureFacades;
-using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
-using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDataUtils;
-using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteReceptionFacades;
-using Com.Efrata.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
-using Com.Efrata.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteExpenditureFacades;
-using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
-using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrderDataUtils;
-using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureDataUtils;
-using Com.Efrata.Service.Purchasing.Test.DataUtils.GarmentReceiptCorrectionDataUtils;
-using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
-using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFacades;
-using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentReports;
-using Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
-using Com.Efrata.Service.Purchasing.Lib.Services.GarmentDebtBalance;
-using Com.Efrata.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Xunit;
 
 namespace Com.Efrata.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFacadeTests
 {
@@ -3227,7 +3228,119 @@ namespace Com.Efrata.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFacad
         //    Assert.NotNull(e.Message);
         //}
 
-        
+        [Fact]
+        public async Task Should_Success_ReadURNItemWithStock()
+        {
+            // Arrange
+            var testName = GetCurrentMethod();
+            var dbContext = _dbContext(testName);
+
+            // Create and save GarmentDeliveryOrder, GarmentDeliveryOrderItem, GarmentDeliveryOrderDetail
+            var deliveryOrder = new GarmentDeliveryOrder { Id = 1, DONo = "DO001" };
+            dbContext.GarmentDeliveryOrders.Add(deliveryOrder);
+
+            var deliveryOrderItem = new GarmentDeliveryOrderItem { Id = 2, GarmentDOId = deliveryOrder.Id };
+            dbContext.GarmentDeliveryOrderItems.Add(deliveryOrderItem);
+
+            var deliveryOrderDetail = new GarmentDeliveryOrderDetail { Id = 3, GarmentDOItemId = deliveryOrderItem.Id };
+            dbContext.GarmentDeliveryOrderDetails.Add(deliveryOrderDetail);
+
+            // Create and save GarmentUnitReceiptNote
+            var urn = new GarmentUnitReceiptNote
+            {
+                Id = 10,
+                URNNo = "URN001",
+                UnitCode = "UC01",
+                StorageCode = "SC01",
+                DONo = deliveryOrder.DONo,
+                DOId = deliveryOrder.Id
+            };
+            dbContext.GarmentUnitReceiptNotes.Add(urn);
+
+            // Create and save GarmentUnitReceiptNoteItem
+            var urnItem = new GarmentUnitReceiptNoteItem
+            {
+                Id = 20,
+                URNId = urn.Id,
+                DODetailId = deliveryOrderDetail.Id,
+                EPOItemId = 30,
+                POItemId = 40,
+                PRItemId = 50,
+                ProductId = 60,
+                ProductName = "ProductA",
+                ProductCode = "PRA",
+                ProductRemark = "RemarkA",
+                OrderQuantity = 100,
+                SmallQuantity = 80,
+                DesignColor = "Black",
+                SmallUomId = 70,
+                SmallUomUnit = "PCS",
+                POSerialNumber = "PO001",
+                PricePerDealUnit = 123.45m,
+                Conversion = 1,
+                UomUnit = "PCS",
+                UomId = 1,
+                ReceiptCorrection = 0,
+                CorrectionConversion = 1,
+                DOCurrencyRate = 14000,
+                RONo = "RO001"
+            };
+            dbContext.GarmentUnitReceiptNoteItems.Add(urnItem);
+
+            // Create and save GarmentDOItems
+            var doItem = new GarmentDOItems
+            {
+                Id = 100,
+                URNItemId = urnItem.Id,
+                RemainingQuantity = 50,
+                Colour = "Red",
+                Rack = "R1",
+                Box = "B1",
+                Area = "A1",
+                Level = "L1",
+                EPOItemId = urnItem.EPOItemId
+            };
+            dbContext.GarmentDOItems.Add(doItem);
+
+            // Create and save GarmentExternalPurchaseOrderItem
+            var epoItem = new GarmentExternalPurchaseOrderItem
+            {
+                Id = urnItem.EPOItemId,
+                Article = "ART001"
+            };
+            dbContext.GarmentExternalPurchaseOrderItems.Add(epoItem);
+
+            dbContext.SaveChanges();
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock.Setup(sp => sp.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService() { Username = "testuser" });
+
+            var facade = new GarmentUnitReceiptNoteFacade(serviceProviderMock.Object, dbContext);
+
+            var filter = new
+            {
+                DONo = deliveryOrder.DONo,
+                UnitCode = urn.UnitCode,
+                StorageCode = urn.StorageCode
+            };
+
+            // Act
+            var result = facade.ReadURNItemWithStock("", JsonConvert.SerializeObject(filter));
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.NotEmpty(result);
+
+            var item = result.First();
+            var urnId = item.GetType().GetProperty("URNId").GetValue(item, null);
+            var doItemsId = item.GetType().GetProperty("DOItemsId").GetValue(item, null);
+            var quantity = item.GetType().GetProperty("Quantity").GetValue(item, null);
+
+            Assert.Equal(urn.Id, urnId);
+            Assert.Equal(doItem.Id, doItemsId);
+            Assert.Equal(doItem.RemainingQuantity, quantity);
+        }
 
     }
 
