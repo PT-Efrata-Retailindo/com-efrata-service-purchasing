@@ -216,40 +216,40 @@ namespace Com.Efrata.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNoteT
             return serviceProviderMock.Object;
         }
 
-        private IServiceProvider GetServiceProviderUnitReceiptNote_DOCurrency()
-        {
-            HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-            httpResponseMessage.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":0.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+        //private IServiceProvider GetServiceProviderUnitReceiptNote_DOCurrency()
+        //{
+        //    HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+        //    httpResponseMessage.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":0.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
 
-            var httpClientService = new Mock<IHttpClientService>();
-            httpClientService
-                .Setup(x => x.GetAsync(It.IsAny<string>()))
-                .ReturnsAsync(httpResponseMessage);
+        //    var httpClientService = new Mock<IHttpClientService>();
+        //    httpClientService
+        //        .Setup(x => x.GetAsync(It.IsAny<string>()))
+        //        .ReturnsAsync(httpResponseMessage);
 
-            var mapper = new Mock<IMapper>();
-            mapper
-                .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
-                .Returns(new GarmentUnitReceiptNoteViewModel
-                {
-                    Items = new List<GarmentUnitReceiptNoteItemViewModel>
-                    {
-                        new GarmentUnitReceiptNoteItemViewModel()
-                    }
-                });
+        //    var mapper = new Mock<IMapper>();
+        //    mapper
+        //        .Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
+        //        .Returns(new GarmentUnitReceiptNoteViewModel
+        //        {
+        //            Items = new List<GarmentUnitReceiptNoteItemViewModel>
+        //            {
+        //                new GarmentUnitReceiptNoteItemViewModel()
+        //            }
+        //        });
 
-            var serviceProviderMock = new Mock<IServiceProvider>();
-            serviceProviderMock
-                .Setup(x => x.GetService(typeof(IdentityService)))
-                .Returns(new IdentityService { Username = "Username" });
-            serviceProviderMock
-                .Setup(x => x.GetService(typeof(IHttpClientService)))
-                .Returns(httpClientService.Object);
-            serviceProviderMock
-                .Setup(x => x.GetService(typeof(IMapper)))
-                .Returns(mapper.Object);
+        //    var serviceProviderMock = new Mock<IServiceProvider>();
+        //    serviceProviderMock
+        //        .Setup(x => x.GetService(typeof(IdentityService)))
+        //        .Returns(new IdentityService { Username = "Username" });
+        //    serviceProviderMock
+        //        .Setup(x => x.GetService(typeof(IHttpClientService)))
+        //        .Returns(httpClientService.Object);
+        //    serviceProviderMock
+        //        .Setup(x => x.GetService(typeof(IMapper)))
+        //        .Returns(mapper.Object);
 
-            return serviceProviderMock.Object;
-        }
+        //    return serviceProviderMock.Object;
+        //}
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         public string GetCurrentMethod()
@@ -296,29 +296,29 @@ namespace Com.Efrata.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNoteT
             return new GarmentUnitExpenditureNoteDataUtil(facade, garmentUnitDeliveryOrderDatautil);
         }
 
-        private GarmentUnitExpenditureNoteDataUtil dataUtil_DOCurrency(GarmentUnitExpenditureNoteFacade facade, string testName)
-        {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider(), _dbContext(testName));
-            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+        //private GarmentUnitExpenditureNoteDataUtil dataUtil_DOCurrency(GarmentUnitExpenditureNoteFacade facade, string testName)
+        //{
+        //    var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider(), _dbContext(testName));
+        //    var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
-            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
-            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+        //    var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+        //    var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
 
-            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
-            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+        //    var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+        //    var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
 
-            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(testName));
-            var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
+        //    var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(testName));
+        //    var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
-            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote_DOCurrency(), _dbContext(testName));
-            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil, null);
+        //    var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote_DOCurrency(), _dbContext(testName));
+        //    var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil, null);
 
-            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(testName), GetServiceProvider());
-            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+        //    var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(testName), GetServiceProvider());
+        //    var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
 
 
-            return new GarmentUnitExpenditureNoteDataUtil(facade, garmentUnitDeliveryOrderDatautil);
-        }
+        //    return new GarmentUnitExpenditureNoteDataUtil(facade, garmentUnitDeliveryOrderDatautil);
+        //}
 
         private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
         {
