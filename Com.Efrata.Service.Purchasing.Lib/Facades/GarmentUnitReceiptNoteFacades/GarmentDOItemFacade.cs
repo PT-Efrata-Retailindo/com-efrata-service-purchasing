@@ -256,7 +256,12 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
                 //&& w.RemainingQuantity > 0 
                 && w.POSerialNumber == (string.IsNullOrWhiteSpace(po) ? w.POSerialNumber : po)
                 //&& w.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? w.UnitCode : unitcode)
-                && w.Rack == (string.IsNullOrWhiteSpace(rack) ? w.Rack : rack)
+                //&& w.Rack == (string.IsNullOrWhiteSpace(rack) ? w.Rack : rack)
+                 && (
+                       rack == null ? true :
+                       rack == "-" ? (w.Rack == null || w.Rack == "-" || w.Rack == "") : (w.Rack == rack)
+                   )
+                //&& (rack == "-" ? true : w.Rack == rack)
                 && w.ProductCode == (string.IsNullOrWhiteSpace(productcode) ? w.ProductCode : productcode)
                 && (w.ProductName == "FABRIC" || w.ProductName== "INTERLINNING")
                 );
