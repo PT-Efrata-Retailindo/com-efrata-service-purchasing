@@ -247,10 +247,6 @@ namespace Com.Efrata.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacade
         }
         public List<DOItemsViewModels> GetByPO(string productcode, string po, string rack)
         {
-            if(rack == "-")
-            {
-                rack = null;
-            }
             IQueryable<GarmentDOItems> Query = dbSetGarmentDOItems
                 .Where(w => w.IsDeleted == false
                 //&& w.RemainingQuantity > 0 
