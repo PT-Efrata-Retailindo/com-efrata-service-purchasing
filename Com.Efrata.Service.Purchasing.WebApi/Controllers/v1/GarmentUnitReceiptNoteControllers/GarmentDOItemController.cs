@@ -168,7 +168,7 @@ namespace Com.Efrata.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceipt
                 //validateService.Validate(ViewModel);
 
                 //var model = mapper.Map<GarmentUnitReceiptNote>(ViewModel);
-
+                validateService.Validate(ViewModel);
                 await facade.Update(id, ViewModel);
 
                 return NoContent();

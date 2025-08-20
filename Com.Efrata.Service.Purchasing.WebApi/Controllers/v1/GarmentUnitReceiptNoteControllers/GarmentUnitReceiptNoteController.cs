@@ -556,7 +556,30 @@ namespace Com.Efrata.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceipt
             }
         }
 
-       
+        [HttpGet("items-with-stock")]
+        public IActionResult GetURNItemWithStock(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                // var model = facade.ReadURNItem(page, size, order, keyword, filter);
+                var result = facade.ReadURNItemWithStock(keyword, filter);
+                Dictionary<string, object> Result =
+                       new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                       .Ok(result);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+
 
 
     }
