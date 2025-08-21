@@ -142,10 +142,10 @@ namespace Com.Efrata.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderV
                                     }
                                 }
                             }
-                            if (Storage.name == "GUDANG BAHAN BAKU" && UnitDOType != "RETUR" && UnitDOType != "MARKETING" && UnitDOType != "SISA" && (string.IsNullOrWhiteSpace(item.Colour) || string.IsNullOrWhiteSpace(item.Rack) || string.IsNullOrWhiteSpace(item.Box) || string.IsNullOrWhiteSpace(item.Level)))
+                            if (Storage.name == "GUDANG BAHAN BAKU" && UnitDOType != "RETUR" && UnitDOType != "MARKETING" && UnitDOType != "SISA" && string.IsNullOrWhiteSpace(item.Colour) && (string.IsNullOrWhiteSpace(item.Rack) || string.IsNullOrWhiteSpace(item.Box) || string.IsNullOrWhiteSpace(item.Level)))
                             {
                                 itemErrorCount++;
-                                itemError += $"Colour: 'Data Racking Belum Lengkap', ";
+                                itemError += $"Rack: 'Data Racking Belum Lengkap', ";
                             }
                         }
 
