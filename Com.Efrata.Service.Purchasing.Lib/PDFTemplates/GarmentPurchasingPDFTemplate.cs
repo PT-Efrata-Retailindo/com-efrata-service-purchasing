@@ -603,35 +603,35 @@ namespace Com.Efrata.Service.Purchasing.Lib.PDFTemplates
             cellSignatureContent.Phrase = new Phrase("Dibuat,", bold_font3);
             tableSignature.AddCell(cellSignatureContent);
 
-            if (AmountPDF > 3000000)
-            {
+            //if (AmountPDF > 3000000)
+            //{
                 cellSignatureContent.Colspan = 0;
                 cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(Direktur Akt & Keu)", bold_font3);
                 tableSignature.AddCell(cellSignatureContent);
                 cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(Manager Akt & Keu)", bold_font3);
                 tableSignature.AddCell(cellSignatureContent);
                 cellSignatureContent.Colspan = 0;
-                cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(General Manager)", bold_font3);
+                cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(Direktur Utama)", bold_font3);
                 tableSignature.AddCell(cellSignatureContent);
                 cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(Manager Pembelian)", bold_font3);
                 tableSignature.AddCell(cellSignatureContent);
                 cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(     Staff     )", bold_font3);
                 tableSignature.AddCell(cellSignatureContent);
-            }
-            else
-            {
-                cellSignatureContent.Colspan = 2;
-                cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n( Manager Akt & Keu )", bold_font3);
-                tableSignature.AddCell(cellSignatureContent);
-                cellSignatureContent.Colspan = 0;
-                cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   General Manager    )", bold_font3);
-                tableSignature.AddCell(cellSignatureContent);
-                cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   Manager Pembelian    )", bold_font3);
-                tableSignature.AddCell(cellSignatureContent);
-                cellSignatureContent.Colspan = 0;
-                cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(     Staff     )", bold_font3);
-                tableSignature.AddCell(cellSignatureContent);
-            }
+            //}
+            //else
+            //{
+            //    cellSignatureContent.Colspan = 2;
+            //    cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n( Manager Akt & Keu )", bold_font3);
+            //    tableSignature.AddCell(cellSignatureContent);
+            //    cellSignatureContent.Colspan = 0;
+            //    cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   General Manager    )", bold_font3);
+            //    tableSignature.AddCell(cellSignatureContent);
+            //    cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   Manager Pembelian    )", bold_font3);
+            //    tableSignature.AddCell(cellSignatureContent);
+            //    cellSignatureContent.Colspan = 0;
+            //    cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(     Staff     )", bold_font3);
+            //    tableSignature.AddCell(cellSignatureContent);
+            //}
 
 
             //PdfPCell cellSignatureContentDir = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER,VerticalAlignment=Element.ALIGN_TOP };
